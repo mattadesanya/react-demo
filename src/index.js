@@ -12,8 +12,8 @@ import './styles/styles.css'; //webpack can import CSS files too!
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 const store = configureStore();
-store.dispatch(loadCourses());
-store.dispatch(loadAuthors());
+// store.dispatch(loadCourses());
+// store.dispatch(loadAuthors());
 
 render(
   <Provider store={store}>

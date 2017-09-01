@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { loadCourses } from '../../actions/courseActions';
+import { connect } from 'react-redux';
 
 class HomePage extends React.Component {
   render() {
@@ -13,4 +15,13 @@ class HomePage extends React.Component {
   }
 }
 
-export default HomePage;
+function mapStateToProps(state, ownProps) {
+  return {
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators( { loadCourses }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

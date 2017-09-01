@@ -55,11 +55,28 @@ const generateId = (course) => {
   return replaceAll(course.title, ' ', '-');
 };
 
+const getCourseById = (courseId) => {
+  const course = courses.filter(course => course.id === courseId);
+  if (course.length) return course[0];
+  return null;
+};
+
 class CourseApi {
   static getAllCourses() {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
+
         resolve(Object.assign([], courses));
+      }, delay);
+    });
+  }
+
+  static getOneCourse(courseId) {
+    let course;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        course = getCourseById(courseId);
+        resolve(Object.assign({}, course));
       }, delay);
     });
   }

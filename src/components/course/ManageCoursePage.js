@@ -5,13 +5,14 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
-import * as courseActions from '../../actions/courseActions';
+import _ from 'lodash';
+import { loadCourse, saveCourse } from '../../actions/courseActions';
+import { loadAuthors } from '../../actions/authorActions';
 import CourseForm from './CourseForm';
 
 class ManageCoursePage extends Component {
   constructor(props, context) {
     super(props, context);
-
     this.state = {
       course: Object.assign({}, this.props.course),
       errors: {}
@@ -21,8 +22,14 @@ class ManageCoursePage extends Component {
     this.saveCourse = this.saveCourse.bind(this);
   }
 
+  componentDidMount() {
+    this.props.loadAuthors().then(() => {
+      this.props.loadCourse(this.props.params.id);
+    });
+  }
+
   componentWillReceiveProps(nextProps) {
-    if (this.props.course.id != nextProps.course.id) {
+    if (this.state.course.id != nextProps.course.id) {
       // Necessary to populate form when existing course is loaded directly
       this.setState({course: Object.assign({}, nextProps.course)});
     }
@@ -36,9 +43,8 @@ class ManageCoursePage extends Component {
   }
 
   saveCourse(event) {
-    console.log('SAVE ME!!!!');
     event.preventDefault();
-    this.props.actions.saveCourse(this.state.course);
+    this.props.saveCourse(this.props.course);
     this.context.router.push('/courses');
   }
 
@@ -56,9 +62,11 @@ class ManageCoursePage extends Component {
 }
 
 ManageCoursePage.propTypes = {
-  actions: PropTypes.object.isRequired,
+  authors: PropTypes.array.isRequired,
   course: PropTypes.object.isRequired,
-  authors: PropTypes.array.isRequired
+  loadCourse: PropTypes.func,
+  saveCourse: PropTypes.func,
+  loadAuthors: PropTypes.func,
 };
 
 //Pull in the React Router context so router is available on this.context.router
@@ -66,21 +74,9 @@ ManageCoursePage.contextTypes = {
   router: PropTypes.object
 };
 
-function getCourseById(courses, id) {
-  // debugger;
-  const course = courses.filter(course => course.id == id);
-  if (course.length) return course[0]; //since filter returns an array, we take the first item
-  return null;
-}
 
 function mapStateToProps(state, ownProps) {
   const courseId = ownProps.params.id; // from the path `/course/:id`
-
-  let course = {id: '', watchHref: '', title: '', authorId: '', length: '', category: ''};
-
-  if (courseId && state.courses.length > 0) {
-    course = getCourseById(state.courses, courseId);
-  }
 
   const authorsFormattedForDropdown = state.authors.map(author => {
     return {
@@ -90,15 +86,13 @@ function mapStateToProps(state, ownProps) {
   });
 
   return {
-    course,
+    course: state.course,
     authors: authorsFormattedForDropdown
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return {
-    actions: bindActionCreators(courseActions, dispatch)
-  };
+  return bindActionCreators({ loadCourse, saveCourse, loadAuthors }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageCoursePage);
